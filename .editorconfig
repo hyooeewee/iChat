@@ -1,0 +1,31 @@
+# EditorConfig helps developers define and maintain consistent
+# coding styles between different editors and IDEs
+# http://EditorConfig.org
+
+# Top-most EditorConfig file
+root = true
+
+# Default configuration
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Tab indentation for Makefiles
+[Makefile]
+indent_style = tab
+
+# 4 spaces for Python files
+[*.py]
+indent_size = 4
+
+# Match JSON files
+[*.json]
+indent_size = 2
+
+# Match Markdown files
+[*.md]
+trim_trailing_whitespace = false
