@@ -1,6 +1,6 @@
+import { type FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import assets, { userDummyData } from '../assets';
-
 type User = {
   _id: string;
   email: string;
@@ -9,7 +9,12 @@ type User = {
   bio: string;
 };
 
-const Sidebar = ({ selectedUser, setSelectedUser }) => {
+interface SidebarProps {
+  selectedUser: User | null;
+  setSelectedUser: (user: User | null) => void;
+}
+
+const Sidebar: FC<SidebarProps> = ({ selectedUser, setSelectedUser }) => {
   const navigate = useNavigate();
   return (
     <div

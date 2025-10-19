@@ -3,8 +3,16 @@ import ChatContainer from '../components/ChatContainer';
 import RightSidebar from '../components/RightSidebar';
 import Sidebar from '../components/Sidebar';
 
+type User = {
+  _id: string;
+  email: string;
+  fullName: string;
+  profilePic: string;
+  bio: string;
+};
+
 const HomePage = () => {
-  const [selectedUser, setSelectedUser] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   return (
     <div className="border w-full h-screen sm:px-[15%] sm:py-[5%]">

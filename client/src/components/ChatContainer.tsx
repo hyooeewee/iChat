@@ -1,18 +1,33 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type FC } from 'react';
 import assets, { messagesDummyData } from '../assets';
 import formatMsgTime from '../lib/utils';
+// type Message = {
+//   _id: string;
+//   senderId: string;
+//   receiverId: string;
+//   text: string;
+//   seen: boolean;
+//   createdAt: string;
+// };
 
-type Message = {
+type User = {
   _id: string;
-  senderId: string;
-  receiverId: string;
-  text: string;
-  seen: boolean;
-  createdAt: string;
+  email: string;
+  fullName: string;
+  profilePic: string;
+  bio: string;
 };
 
-const ChatContainer = ({ selectedUser, setSelectedUser }) => {
-  const scrollEnd = useRef();
+interface ChatContainerProps {
+  selectedUser: User | null;
+  setSelectedUser: (user: User | null) => void;
+}
+
+const ChatContainer: FC<ChatContainerProps> = ({
+  selectedUser,
+  setSelectedUser,
+}) => {
+  const scrollEnd = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scrollEnd.current) {
       scrollEnd.current.scrollIntoView({ behavior: 'smooth' });
