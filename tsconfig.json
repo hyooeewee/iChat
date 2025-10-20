@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "ESNext",
+        "moduleResolution": "node",
+        "target": "ESNext",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "outDir": "./dist",
+        "rootDir": "./"
+    },
+    "ts-node": {
+        "esm": true
+    },
+    "exclude": [
+        "node_modules",
+        "client"
+    ]
+}

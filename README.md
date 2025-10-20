@@ -1,4 +1,4 @@
-# React + TypeScript + Vite
+<!-- # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
@@ -70,8 +70,14 @@ export default defineConfig([
     },
   },
 ])
-```
+``` -->
+# iChat
+
+A real-time chat application built with MERN stack.
+
+
 
 ## References
 
 - [How To Make MERN Stack Chat App With Socket.io | Build Real-Time Full Stack Chat Application](https://youtu.be/tTCam8KGVRE?si=H4g2Nrn44LmGG60h)
+- [Current](https://youtu.be/tTCam8KGVRE?si=Eke_YbUGkkkK4Lpz&t=11167)
