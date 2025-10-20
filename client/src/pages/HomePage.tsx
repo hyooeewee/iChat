@@ -2,14 +2,7 @@ import { useState } from 'react';
 import ChatContainer from '../components/ChatContainer';
 import RightSidebar from '../components/RightSidebar';
 import Sidebar from '../components/Sidebar';
-
-type User = {
-  _id: string;
-  email: string;
-  fullName: string;
-  profilePic: string;
-  bio: string;
-};
+import type { User } from '../types';
 
 const HomePage = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
