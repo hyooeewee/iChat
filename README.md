@@ -80,4 +80,4 @@ A real-time chat application built with MERN stack.
 ## References
 
 - [How To Make MERN Stack Chat App With Socket.io | Build Real-Time Full Stack Chat Application](https://youtu.be/tTCam8KGVRE?si=H4g2Nrn44LmGG60h)
-- [Current](https://youtu.be/tTCam8KGVRE?si=Eke_YbUGkkkK4Lpz&t=11167)
+- [Current](https://youtu.be/tTCam8KGVRE?si=dQ80EITvBFIP5o7u&t=18548)

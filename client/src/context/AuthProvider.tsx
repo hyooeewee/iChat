@@ -1,23 +1,44 @@
+/// <reference types="vite/client" />
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Toast from 'react-hot-toast';
 import { io, type Socket } from 'socket.io-client';
 import errorHandler from '../lib/errorHandler';
-import type { User } from '../types';
-import { AuthContext } from './authContext';
+import type { AuthContextType } from '../types';
+import type { User } from '../types/index';
+import AuthContext from './AuthContext';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.baseURL = backendUrl;
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState<string | null>(
     localStorage.getItem('token')
   );
   const [authUser, setAuthUser] = useState<User | null>(null);
-  const [onlineUsers, setOnlineUsers] = useState<User[]>([]);
+  const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
   const [socket, setSocket] = useState<Socket | null>(null);
+  // Socket create
+  const createSocket = useCallback(
+    async (user: User) => {
+      if (!user || socket?.connected) return;
+      const newSocket = io(backendUrl, {
+        query: {
+          userId: user?._id,
+        },
+      });
+      newSocket.connect();
+      newSocket.on('connect', () => {
+        setSocket(newSocket);
+      });
+      newSocket.on('onlineUsers', (userIds: string[]) => {
+        setOnlineUsers(userIds);
+      });
+    },
+    [socket]
+  );
   // Authorization validation
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const { data } = await axios.get('/api/auth/check-auth');
       if (data.success) {
@@ -25,30 +46,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         createSocket(data.user);
       }
     } catch (error) {
-      errorHandler(error);
+      // errorHandler(error);
+      console.error(error);
     }
-  };
-  // Socket create
-  const createSocket = async (user: User) => {
-    if (!user || socket?.connected) return;
-    const newSocket = io(backendUrl, {
-      query: {
-        userId: user?._id,
-      },
-    });
-    newSocket.connect();
-    newSocket.on('connect', () => {
-      setSocket(socket);
-    });
-    newSocket.on('onlineUsers', (userIds: User[]) => {
-      setOnlineUsers(userIds);
-    });
-  };
+  }, [createSocket]);
   useEffect(() => {
     if (token)
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     checkAuth();
-  }, []);
+  }, [token, checkAuth]);
   // Auth handler
   const auth = async (
     state: 'login' | 'register',
@@ -59,7 +65,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (data.success) {
         setAuthUser(data.user);
         createSocket(data.user);
-        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
         setToken(data.token);
         localStorage.setItem('token', data.token);
         Toast.success(data.message);
@@ -73,22 +79,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = async () => {
     try {
       localStorage.removeItem('token');
-      const { data } = await axios.post('/api/auth/logout');
-      if (data.success) {
-        setAuthUser(null);
-        setOnlineUsers([]);
-        setSocket(null);
-        socket?.disconnect();
-        delete axios.defaults.headers.common['Authorization'];
-        Toast.success(data.message);
-      } else {
-        Toast.error(data.message);
-      }
+      setAuthUser(null);
+      setOnlineUsers([]);
+      setToken(null);
+      socket?.disconnect();
+      setSocket(null);
+      delete axios.defaults.headers.common['Authorization'];
+      Toast.success('Logged out successfully!');
     } catch (error) {
       errorHandler(error);
     }
   };
-  const updateProfile = async (user: Omit<User, '_id'>) => {
+  const updateProfile = async (user: User) => {
     try {
       const { data } = await axios.put('/api/auth/update-profile', user);
       if (data.success) {
@@ -101,7 +103,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       errorHandler(error);
     }
   };
-  const value = {
+  const value: AuthContextType = {
     axios,
     authUser,
     onlineUsers,
@@ -112,3 +114,4 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+export default AuthProvider;

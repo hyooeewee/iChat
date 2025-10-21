@@ -1,16 +1,38 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import assets from '../assets';
-
+import AuthContext from '../context/AuthContext.ts';
+import type { AuthContextType } from '../types';
 const ProfilePage = () => {
+  const { authUser, updateProfile } = useContext(
+    AuthContext
+  ) as AuthContextType;
   const [selectedImg, setSelectedImg] = useState<Blob>();
-  const [name, setName] = useState<string>('Martin Johnson');
-  const [bio, setBio] = useState<string>(
-    'Hi everyone, I am using ChatApp to chat with my friends.'
-  );
+  const [name, setName] = useState<string>(authUser?.username as string);
+  const [bio, setBio] = useState<string>(authUser?.bio as string);
   const navigate = useNavigate();
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (selectedImg) {
+      const reader = new FileReader();
+      reader.readAsDataURL(selectedImg);
+      reader.onload = async () => {
+        const profilePic = reader.result as string;
+        if (profilePic) {
+          await updateProfile({
+            username: name as string,
+            bio: bio as string,
+            profilePic,
+          });
+        }
+      };
+      navigate('/');
+      return;
+    }
+    await updateProfile({
+      username: name as string,
+      bio: bio as string,
+    });
     navigate('/');
   };
   return (
@@ -66,7 +88,9 @@ const ProfilePage = () => {
         </form>
         <img
           src={assets.logo_icon}
-          className="max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10"
+          className={`max-w-44 aspect-square rounded-full mx-10 max-sm:mt-10 ${
+            selectedImg && 'rounded-full'
+          }`}
         />
       </div>
     </div>

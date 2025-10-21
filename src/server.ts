@@ -1,10 +1,11 @@
 import cors from 'cors';
 import 'dotenv/config';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import http from 'http';
 import { Types } from 'mongoose';
 import { Server } from 'socket.io';
 import connectDB from './database';
+import errorHandler from './middleware/errorHandler';
 import { messageRoutes, userRoutes } from './routes';
 
 // Create Express App
@@ -26,25 +27,30 @@ io.on('connection', socket => {
   console.log(`User: ${userId} is connecting...`);
   if (userId && typeof userId === 'string' && Types.ObjectId.isValid(userId))
     clientsMap.set(new Types.ObjectId(userId), socket.id);
-  io.emit('allUsers', Array.from(clientsMap.keys()));
-  io.on('disconnect', () => {
-    console.log(`User: ${userId} is disconnecting...`);
-    if (userId && typeof userId === 'string' && Types.ObjectId.isValid(userId))
-      clientsMap.delete(new Types.ObjectId(userId));
-    io.emit('allUsers', Array.from(clientsMap.keys()));
-  });
+  io.emit('onlineUsers', Array.from(clientsMap.keys()));
 });
-
+io.on('disconnect', socket => {
+  const userId = socket.handshake.query.userId;
+  console.log(`User: ${userId} is disconnecting...`);
+  if (userId && typeof userId === 'string' && Types.ObjectId.isValid(userId))
+    clientsMap.delete(new Types.ObjectId(userId));
+  io.emit('onlineUsers', Array.from(clientsMap.keys()));
+});
 // Middleware setup
 app.use(cors());
 app.use(express.json({ limit: '4mb' }));
 
 // Routes
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(req.method, req.originalUrl, req.body);
+  next();
+});
 app.use('/api/status', (req: Request, res: Response) => {
   res.send('Server is up and running');
 });
 app.use('/api/auth', userRoutes);
 app.use('/api/messages', messageRoutes);
+app.use(errorHandler);
 
 // Server Setup
 const PORT = process.env.PORT || 5000;

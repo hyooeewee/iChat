@@ -1,32 +1,12 @@
-import { useEffect, useRef, type FC } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import assets, { messagesDummyData } from '../assets';
+import ChatContext from '../context/ChatContext';
 import formatMsgTime from '../lib/utils';
-// type Message = {
-//   _id: string;
-//   senderId: string;
-//   receiverId: string;
-//   text: string;
-//   seen: boolean;
-//   createdAt: string;
-// };
-
-type User = {
-  _id: string;
-  email: string;
-  fullName: string;
-  profilePic: string;
-  bio: string;
-};
-
-interface ChatContainerProps {
-  selectedUser: User | null;
-  setSelectedUser: (user: User | null) => void;
-}
-
-const ChatContainer: FC<ChatContainerProps> = ({
-  selectedUser,
-  setSelectedUser,
-}) => {
+import type { ChatContextType } from '../types';
+const ChatContainer = () => {
+  const { selectedUser, setSelectedUser } = useContext(
+    ChatContext
+  ) as ChatContextType;
   const scrollEnd = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (scrollEnd.current) {

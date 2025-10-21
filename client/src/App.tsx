@@ -1,12 +1,15 @@
 import { useContext } from 'react';
 import { Toaster } from 'react-hot-toast';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { AuthContext } from './context/AuthContext';
+import AuthContext from './context/AuthContext';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
+import type { AuthContextType } from './types';
 const App = () => {
-  const { authUser } = useContext(AuthContext) || {};
+  const { authUser } = useContext<AuthContextType | null>(
+    AuthContext
+  ) as AuthContextType;
   return (
     <div className="bg-[url('./src/assets/bgImage.svg')] bg-contain ">
       <Toaster />

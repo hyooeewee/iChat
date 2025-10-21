@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
 import { verifyToken } from '../lib/secret';
 import User from '../models/User';
-import { AuthRequest } from '../types';
+import { AuthRequest, tokenPayloadType } from '../types';
 
 export const protectRoute = async (
   req: AuthRequest,
@@ -16,7 +16,7 @@ export const protectRoute = async (
         message: 'Unauthorized',
       });
     }
-    const decoded = verifyToken(token);
+    const decoded = verifyToken(token) as tokenPayloadType;
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {
       return res.status(401).json({
@@ -27,11 +27,7 @@ export const protectRoute = async (
     req.user = user;
     next();
   } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      success: false,
-      message: 'Internal Server Error',
-    });
+    next(error);
   }
 };
 
@@ -39,7 +35,7 @@ export const checkAuth = async (req: AuthRequest, res: Response) => {
   try {
     res.status(200).json({
       success: true,
-      data: req.user,
+      user: req.user,
     });
   } catch (error) {
     console.log(error);

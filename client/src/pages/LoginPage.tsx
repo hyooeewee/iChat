@@ -1,19 +1,37 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import assets from '../assets';
+import AuthContext from '../context/AuthContext';
+import type { AuthContextType } from '../types';
 
 const LoginPage = () => {
-  const [currState, setCurrState] = useState('Sign up');
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [bio, setBio] = useState('');
-  const [isDataSubmitted, setIsDataSubmitted] = useState(false);
+  const [currState, setCurrState] = useState<'register' | 'login'>('login');
+  const [fullName, setFullName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [bio, setBio] = useState<string>('');
+  const [isDataSubmitted, setIsDataSubmitted] = useState<boolean>(false);
+  const { auth } = useContext(AuthContext) as AuthContextType;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (currState === 'Sign up' && !isDataSubmitted) {
+    if (currState === 'register' && !isDataSubmitted) {
       setIsDataSubmitted(true);
+      return;
     }
+    await auth(
+      currState,
+      currState === 'register'
+        ? {
+            email,
+            password,
+            username: fullName,
+            bio,
+          }
+        : {
+            email,
+            password,
+          }
+    );
   };
   return (
     <div className="min-h-screen bg-cover bg-center flex items-center justify-center gap-8 sm:justify-evenly max-sm:flex-col backdrop-blur-2xl">
@@ -34,7 +52,7 @@ const LoginPage = () => {
             />
           )}
         </h2>
-        {currState === 'Sign up' && !isDataSubmitted && (
+        {currState === 'register' && !isDataSubmitted && (
           <input
             type="text"
             className="p-2 border border-gray-500 rounded-md focus:outline-none"
@@ -64,7 +82,7 @@ const LoginPage = () => {
             />
           </>
         )}
-        {currState === 'Sign up' && isDataSubmitted && (
+        {currState === 'register' && isDataSubmitted && (
           <textarea
             rows={5}
             className="p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -78,20 +96,20 @@ const LoginPage = () => {
           type="submit"
           className="py-3 bg-gradient-to-r from-purple-400 to-violet-600 text-white rounded-md cursor-pointer"
         >
-          {currState === 'Sign up' ? 'Create Account' : 'Login Now'}
+          {currState === 'register' ? 'Create Account' : 'Login Now'}
         </button>
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <input type="checkbox" />
           <p>Agree to the terms of use & privacy policy.</p>
         </div>
         <div className="flex fle-col gap-2">
-          {currState === 'Sign up' ? (
+          {currState === 'register' ? (
             <p className="text-sm text-gray-600">
               Already have an account?
               <span
                 className="cursor-pointer font-medium text-violet-500"
                 onClick={() => {
-                  setCurrState('Login');
+                  setCurrState('login');
                   setIsDataSubmitted(false);
                 }}
               >
@@ -104,7 +122,7 @@ const LoginPage = () => {
               <span
                 className="cursor-pointer font-medium text-violet-500"
                 onClick={() => {
-                  setCurrState('Sign up');
+                  setCurrState('register');
                   setIsDataSubmitted(false);
                 }}
               >

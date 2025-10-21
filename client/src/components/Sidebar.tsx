@@ -1,20 +1,24 @@
-import { type FC } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import assets, { userDummyData } from '../assets';
-type User = {
-  _id: string;
-  email: string;
-  fullName: string;
-  profilePic: string;
-  bio: string;
-};
+import assets from '../assets';
+import AuthContext from '../context/AuthContext';
+import ChatContext from '../context/ChatContext';
+import type { AuthContextType, ChatContextType, User } from '../types';
 
-interface SidebarProps {
-  selectedUser: User | null;
-  setSelectedUser: (user: User | null) => void;
-}
+const Sidebar = () => {
+  const { logout, onlineUsers } = useContext(AuthContext) as AuthContextType;
+  const { users, getUsers, selectedUser, setSelectedUser, unseenMessages } =
+    useContext(ChatContext) as ChatContextType;
+  const [input, setInput] = useState<string>('');
+  const filteredUsers = input
+    ? users.filter(user =>
+        user.username.toLowerCase().includes(input.toLowerCase())
+      )
+    : users;
+  useEffect(() => {
+    getUsers();
+  }, []);
 
-const Sidebar: FC<SidebarProps> = ({ selectedUser, setSelectedUser }) => {
   const navigate = useNavigate();
   return (
     <div
@@ -39,7 +43,9 @@ const Sidebar: FC<SidebarProps> = ({ selectedUser, setSelectedUser }) => {
                 Edit Profile
               </p>
               <hr className="my-2 border-t border-gray-500" />
-              <p className="cursor-pointer text-sm">Logout</p>
+              <p className="cursor-pointer text-sm" onClick={() => logout()}>
+                Logout
+              </p>
             </div>
           </div>
         </div>
@@ -47,13 +53,15 @@ const Sidebar: FC<SidebarProps> = ({ selectedUser, setSelectedUser }) => {
           <img src={assets.search_icon} alt="search" className="w-3" />
           <input
             type="text"
-            placeholder="Search User ..."
+            placeholder="Search User..."
             className="bg-transparent outline-none border-none text-white text-xs placeholder-[#c8c8c8] flex-1"
+            value={input}
+            onChange={e => setInput(e.target.value)}
           />
         </div>
       </div>
       <div className="flex flex-col">
-        {userDummyData.map((user: User, index: number) => (
+        {filteredUsers.map((user: User, index: number) => (
           <div
             className={`relative flex items-center gap-2 p-2 pl-4 rounded cursor-pointer 
                 hover:bg-[#282142]/20 max-sm:text-sm ${
@@ -67,17 +75,17 @@ const Sidebar: FC<SidebarProps> = ({ selectedUser, setSelectedUser }) => {
               className="w-9 aspect-square rounded-full"
             />
             <div className="flex flex-col leading-5">
-              <p className="">{user.fullName}</p>
+              <p className="">{user.username}</p>
               {/* TODO: Mock online status */}
-              {index < 3 ? (
+              {onlineUsers?.includes(user._id) ? (
                 <span className="text-xs text-green-400">Online</span>
               ) : (
                 <span className="text-xs text-neutral-400">Offline</span>
               )}
             </div>
             {/* TODO: Mock notification status */}
-            {index > 2 && (
-              <p className="absolute top-4 right-4 text-l size-5 flex justify-center items-center rounded-full bg-violet-500/50 ">
+            {unseenMessages[user._id] > 0 && (
+              <p className="absolute top-4 right-4 text-l size-5 flex justify-center items-center rounded-full bg-violet-500/50">
                 {index}
               </p>
             )}

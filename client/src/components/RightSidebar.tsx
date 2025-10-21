@@ -1,20 +1,12 @@
-import { type FC } from 'react';
+import { useContext } from 'react';
 import assets, { imagesDummyData } from '../assets';
+import AuthContext from '../context/AuthContext';
+import ChatContext from '../context/ChatContext';
+import type { AuthContextType, ChatContextType } from '../types';
 
-type User = {
-  _id: string;
-  email: string;
-  fullName: string;
-  profilePic: string;
-  bio: string;
-};
-
-interface RightSidebarProps {
-  selectedUser: User | null;
-  setSelectedUser: (user: User | null) => void;
-}
-
-const RightSidebar: FC<RightSidebarProps> = ({ selectedUser }) => {
+const RightSidebar = () => {
+  const { selectedUser } = useContext(ChatContext) as ChatContextType;
+  const { logout } = useContext(AuthContext) as AuthContextType;
   return (
     selectedUser && (
       <div
@@ -29,7 +21,7 @@ const RightSidebar: FC<RightSidebarProps> = ({ selectedUser }) => {
             className="w-20 aspect-square rounded-full"
           />
           <h1 className="px-10 text-xl font-medium mx-auto flex items-center gap-2">
-            {selectedUser?.fullName}
+            {selectedUser?.username}
           </h1>
           <p className="px-10 mx-auto">{selectedUser?.bio}</p>
         </div>
@@ -50,7 +42,10 @@ const RightSidebar: FC<RightSidebarProps> = ({ selectedUser }) => {
           </div>
         </div>
         {/* ------- Action ------- */}
-        <button className="absolute bottom-5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-400 to-violet-600 text-white border-none text-xs font-light py-2 px-20 rounded-full cursor-pointer">
+        <button
+          className="absolute bottom-5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-400 to-violet-600 text-white border-none text-xs font-light py-2 px-20 rounded-full cursor-pointer"
+          onClick={() => logout()}
+        >
           Logout
         </button>
       </div>

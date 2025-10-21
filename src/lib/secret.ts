@@ -1,7 +1,9 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import errorHandler from '../middleware/errorHandler';
+import type { tokenPayloadType } from '../types';
 
-export const generateToken = (payload: any) => {
+export const generateToken = (payload: tokenPayloadType) => {
   /**
    * Generate a token
    * @param {Object} payload - The payload to be signed
@@ -14,10 +16,13 @@ export const generateToken = (payload: any) => {
 };
 export const verifyToken = (token: string) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as tokenPayloadType;
     return decoded;
   } catch (error) {
-    return null;
+    errorHandler(error);
   }
 };
 

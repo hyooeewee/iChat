@@ -29,7 +29,7 @@ export const register = async (req: Request, res: Response) => {
         message: 'User already exists',
       });
     }
-    const hashedPassword = hashPassword(password);
+    const hashedPassword = await hashPassword(password);
     const newUser = await User.create({
       username,
       email,
