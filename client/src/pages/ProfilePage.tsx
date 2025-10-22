@@ -16,7 +16,7 @@ const ProfilePage = () => {
     if (selectedImg) {
       const reader = new FileReader();
       reader.readAsDataURL(selectedImg);
-      reader.onload = async () => {
+      reader.onloadend = async () => {
         const profilePic = reader.result as string;
         if (profilePic) {
           await updateProfile({

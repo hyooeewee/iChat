@@ -1,12 +1,20 @@
-import { useContext } from 'react';
-import assets, { imagesDummyData } from '../assets';
+import { useContext, useEffect, useState } from 'react';
+import assets from '../assets';
 import AuthContext from '../context/AuthContext';
 import ChatContext from '../context/ChatContext';
-import type { AuthContextType, ChatContextType } from '../types';
+import type { AuthContextType, ChatContextType, Message } from '../types';
 
 const RightSidebar = () => {
-  const { selectedUser } = useContext(ChatContext) as ChatContextType;
-  const { logout } = useContext(AuthContext) as AuthContextType;
+  const { selectedUser, messages } = useContext(ChatContext) as ChatContextType;
+  const { logout, onlineUsers } = useContext(AuthContext) as AuthContextType;
+  const [images, setImages] = useState<string[]>([]);
+  useEffect(() => {
+    setImages(
+      messages.map((message: Message) => {
+        return message.image as string;
+      })
+    );
+  }, [messages]);
   return (
     selectedUser && (
       <div
@@ -22,6 +30,9 @@ const RightSidebar = () => {
           />
           <h1 className="px-10 text-xl font-medium mx-auto flex items-center gap-2">
             {selectedUser?.username}
+            {onlineUsers?.includes(selectedUser?._id) && (
+              <p className="size-2 bg-green-500 rounded-full"></p>
+            )}
           </h1>
           <p className="px-10 mx-auto">{selectedUser?.bio}</p>
         </div>
@@ -29,8 +40,8 @@ const RightSidebar = () => {
         <hr className="border-[#ffffff50] my-4" />
         <div className="px-5 text-xs">
           <p>Media</p>
-          <div className="mt-2 mx-h-[200px] overflow-y-scroll grid grid-cols-2 gap-4 opacity-80">
-            {imagesDummyData.map((url: string, index: number) => (
+          <div className="mt-2 max-h-[200px] overflow-y-scroll grid grid-cols-2 gap-4 opacity-80">
+            {images.map((url: string, index: number) => (
               <div
                 key={index}
                 className="cursor-pointer rounded"

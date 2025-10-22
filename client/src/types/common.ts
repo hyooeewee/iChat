@@ -7,11 +7,14 @@ type User = {
 };
 
 type Message = {
-  _id: string;
+  _id?: string;
   senderId: string;
   receiverId: string;
-  content: string;
-  // more fields
+  content?: string;
+  image?: string;
+  seen?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type { Message, User };

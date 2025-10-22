@@ -2,7 +2,7 @@ import mongoose, { HydratedDocument, InferSchemaType, Types } from 'mongoose';
 
 const messageSchema = new mongoose.Schema(
   {
-    sender: {
+    senderId: {
       type: Types.ObjectId,
       ref: 'User',
       required: true,

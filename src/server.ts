@@ -16,7 +16,7 @@ const server = http.createServer(app);
 await connectDB();
 
 // Create Express & Socket.io Server
-export const clientsMap = new Map<Types.ObjectId, string>();
+export const clientsMap = new Map<string, string>();
 export const io = new Server(server, {
   cors: {
     origin: '*',
@@ -25,16 +25,20 @@ export const io = new Server(server, {
 io.on('connection', socket => {
   const userId = socket.handshake.query.userId;
   console.log(`User: ${userId} is connecting...`);
-  if (userId && typeof userId === 'string' && Types.ObjectId.isValid(userId))
-    clientsMap.set(new Types.ObjectId(userId), socket.id);
+  if (
+    userId &&
+    typeof userId === 'string' &&
+    !clientsMap.get(userId) &&
+    Types.ObjectId.isValid(userId)
+  )
+    clientsMap.set(userId, socket.id);
   io.emit('onlineUsers', Array.from(clientsMap.keys()));
-});
-io.on('disconnect', socket => {
-  const userId = socket.handshake.query.userId;
-  console.log(`User: ${userId} is disconnecting...`);
-  if (userId && typeof userId === 'string' && Types.ObjectId.isValid(userId))
-    clientsMap.delete(new Types.ObjectId(userId));
-  io.emit('onlineUsers', Array.from(clientsMap.keys()));
+  io.on('disconnect', () => {
+    console.log(`User: ${userId} is disconnecting...`);
+    if (userId && typeof userId === 'string' && Types.ObjectId.isValid(userId))
+      clientsMap.delete(userId);
+    io.emit('onlineUsers', Array.from(clientsMap.keys()));
+  });
 });
 // Middleware setup
 app.use(cors());

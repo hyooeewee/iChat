@@ -4,13 +4,13 @@ import AuthContext from '../context/AuthContext';
 import type { AuthContextType } from '../types';
 
 const LoginPage = () => {
+  const { auth } = useContext(AuthContext) as AuthContextType;
   const [currState, setCurrState] = useState<'register' | 'login'>('login');
   const [fullName, setFullName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [bio, setBio] = useState<string>('');
   const [isDataSubmitted, setIsDataSubmitted] = useState<boolean>(false);
-  const { auth } = useContext(AuthContext) as AuthContextType;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,7 +99,7 @@ const LoginPage = () => {
           {currState === 'register' ? 'Create Account' : 'Login Now'}
         </button>
         <div className="flex items-center gap-2 text-sm text-gray-500">
-          <input type="checkbox" />
+          <input type="checkbox" required />
           <p>Agree to the terms of use & privacy policy.</p>
         </div>
         <div className="flex fle-col gap-2">

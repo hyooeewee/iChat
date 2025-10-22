@@ -7,8 +7,14 @@ import type { AuthContextType, ChatContextType, User } from '../types';
 
 const Sidebar = () => {
   const { logout, onlineUsers } = useContext(AuthContext) as AuthContextType;
-  const { users, getUsers, selectedUser, setSelectedUser, unseenMessages } =
-    useContext(ChatContext) as ChatContextType;
+  const {
+    users,
+    getUsers,
+    selectedUser,
+    setSelectedUser,
+    unseenMessages,
+    setUnseenMessages,
+  } = useContext(ChatContext) as ChatContextType;
   const [input, setInput] = useState<string>('');
   const filteredUsers = input
     ? users.filter(user =>
@@ -18,7 +24,6 @@ const Sidebar = () => {
   useEffect(() => {
     getUsers();
   }, []);
-
   const navigate = useNavigate();
   return (
     <div
@@ -68,7 +73,12 @@ const Sidebar = () => {
                   selectedUser?._id === user._id && 'bg-[#282142]/50'
                 }`}
             key={index}
-            onClick={() => setSelectedUser(user)}
+            onClick={() => {
+              setSelectedUser(user);
+              setUnseenMessages(prev => {
+                return { ...prev, [user._id]: 0 };
+              });
+            }}
           >
             <img
               src={user?.profilePic || assets.avatar_icon}
@@ -84,9 +94,9 @@ const Sidebar = () => {
               )}
             </div>
             {/* TODO: Mock notification status */}
-            {unseenMessages[user._id] > 0 && (
+            {unseenMessages?.[user?._id] > 0 && (
               <p className="absolute top-4 right-4 text-l size-5 flex justify-center items-center rounded-full bg-violet-500/50">
-                {index}
+                {unseenMessages[user?._id]}
               </p>
             )}
           </div>

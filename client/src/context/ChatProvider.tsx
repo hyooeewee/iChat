@@ -1,7 +1,13 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Toast from 'react-hot-toast';
 import errorHandler from '../lib/errorHandler';
-import type { AuthContextType, ChatContextType, Message, User } from '../types';
+import type {
+  AuthContextType,
+  ChatContextType,
+  Message,
+  SendMessageType,
+  User,
+} from '../types';
 import AuthContext from './AuthContext';
 import ChatContext from './ChatContext';
 
@@ -9,7 +15,9 @@ const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [unseenMessages, setUnseenMessages] = useState({});
+  const [unseenMessages, setUnseenMessages] = useState<{
+    [keys: string]: number;
+  }>({});
   const { socket, axios } = useContext(AuthContext) as AuthContextType;
 
   const getUsers = async () => {
@@ -23,7 +31,7 @@ const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       errorHandler(error);
     }
   };
-  const getMessage = async (id: string) => {
+  const getMessages = async (id: string) => {
     try {
       const { data } = await axios.get(`/api/messages/${id}`);
       if (data.success) {
@@ -33,7 +41,7 @@ const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       errorHandler(error);
     }
   };
-  const sendMessage = async (message: Message) => {
+  const sendMessage = async (message: SendMessageType) => {
     try {
       const { data } = await axios.post(
         `/api/messages/send/${selectedUser?._id}`,
@@ -48,32 +56,39 @@ const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       errorHandler(error);
     }
   };
-  const subscribeMessages = useCallback(async () => {
+  const subscribeMessages = async () => {
+    console.log('socket:', socket);
+    console.log('subscribing');
+    socket?.on('test', (msg: string) => {
+      console.log('msg:', msg);
+    });
     if (!socket) return;
-    socket.on('newMessage', message => {
+    socket.on('newMessage', (message: Message) => {
+      console.log('new Msg:', message);
       if (selectedUser && selectedUser._id === message.senderId) {
         message.seen = true;
         setMessages(messages => [...messages, message]);
         axios.put(`/api/messages/seen/${message._id}`);
       } else {
-        setUnseenMessages((unseenMessages: { [keys: string]: number }) => ({
-          ...unseenMessages,
+        setUnseenMessages(prev => ({
+          ...prev,
           [message.senderId]: (unseenMessages[message.senderId] || 0) + 1,
         }));
       }
     });
-  }, [axios, selectedUser, socket]);
+  };
 
-  const unsubscribeMessages = useCallback(async () => {
+  const unsubscribeMessages = async () => {
+    console.log('unsubscribing');
     if (!socket) return;
     socket.off('newMessage');
-  }, [socket]);
+  };
   useEffect(() => {
     subscribeMessages();
     return () => {
       unsubscribeMessages();
     };
-  }, []);
+  }, [selectedUser, socket]);
 
   const value: ChatContextType = {
     messages,
@@ -83,7 +98,7 @@ const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     setMessages,
     setSelectedUser,
     setUnseenMessages,
-    getMessage,
+    getMessages,
     getUsers,
     sendMessage,
   };
