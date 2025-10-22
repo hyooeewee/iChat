@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import cloudinary from '../config/cloudinary';
 import { comparePassword, generateToken, hashPassword } from '../lib/secret';
 import User from '../models/User';
-import { AuthRequest } from '../types';
+import type { AuthRequest } from '../types';
 
 export const register = async (req: Request, res: Response) => {
   /**
@@ -62,7 +62,7 @@ export const login = async (req: Request, res: Response) => {
         message: 'User does not exist',
       });
     }
-    const isMatch = await comparePassword(password, user.password);
+    const isMatch = await comparePassword(password, user.password as string);
     if (!isMatch) {
       return res.status(400).json({
         success: false,
@@ -73,7 +73,7 @@ export const login = async (req: Request, res: Response) => {
     res.status(200).json({
       success: true,
       token,
-      data: user,
+      user: user.toJSON(),
       message: 'User logged in successfully',
     });
   } catch (error) {

@@ -7,7 +7,7 @@ const ProfilePage = () => {
   const { authUser, updateProfile } = useContext(
     AuthContext
   ) as AuthContextType;
-  const [selectedImg, setSelectedImg] = useState<Blob>();
+  const [selectedImg, setSelectedImg] = useState<File>();
   const [name, setName] = useState<string>(authUser?.username as string);
   const [bio, setBio] = useState<string>(authUser?.bio as string);
   const navigate = useNavigate();
@@ -58,9 +58,11 @@ const ProfilePage = () => {
               src={
                 selectedImg
                   ? URL.createObjectURL(selectedImg)
-                  : assets.avatar_icon
+                  : authUser?.profilePic || assets.avatar_icon
               }
-              className={`size-12 ${selectedImg && 'rounded-full'}`}
+              className={`size-12 ${
+                selectedImg || (authUser?.profilePic && 'rounded-full')
+              }`}
             />
             Upload profile image
           </label>

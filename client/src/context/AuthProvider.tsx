@@ -4,8 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import Toast from 'react-hot-toast';
 import { io, type Socket } from 'socket.io-client';
 import errorHandler from '../lib/errorHandler';
-import type { AuthContextType } from '../types';
-import type { User } from '../types/index';
+import type { AuthContextType, UpdateProfile, User } from '../types';
 import AuthContext from './AuthContext';
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -47,7 +46,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     } catch (error) {
       // errorHandler(error);
-      console.error(error);
+      console.error('Authorization Error', error);
     }
   }, [createSocket]);
   useEffect(() => {
@@ -63,6 +62,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const { data } = await axios.post(`/api/auth/${state}`, credentials);
       if (data.success) {
+        console.log(data.user);
         setAuthUser(data.user);
         createSocket(data.user);
         axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
@@ -90,7 +90,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       errorHandler(error);
     }
   };
-  const updateProfile = async (user: User) => {
+  const updateProfile = async (user: UpdateProfile) => {
     try {
       const { data } = await axios.put('/api/auth/update-profile', user);
       if (data.success) {

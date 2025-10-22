@@ -1,6 +1,5 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import errorHandler from '../middleware/errorHandler';
 import type { tokenPayloadType } from '../types';
 
 export const generateToken = (payload: tokenPayloadType) => {
@@ -22,7 +21,7 @@ export const verifyToken = (token: string) => {
     ) as tokenPayloadType;
     return decoded;
   } catch (error) {
-    errorHandler(error);
+    console.error(error);
   }
 };
 

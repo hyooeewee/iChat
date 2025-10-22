@@ -2,6 +2,9 @@ import { Axios } from 'axios';
 import { type Socket } from 'socket.io-client';
 import type { Message, User } from './common';
 
+type UpdateProfile = Pick<User, 'username' | 'bio'> &
+  Partial<Pick<User, 'profilePic'>>;
+
 interface AuthContextType {
   axios: Axios;
   authUser: User | null;
@@ -12,7 +15,7 @@ interface AuthContextType {
     credentials: { [keys: string]: string }
   ) => Promise<void>;
   logout: () => Promise<void>;
-  updateProfile: (user: User) => Promise<void>;
+  updateProfile: (user: UpdateProfile) => Promise<void>;
 }
 
 interface ChatContextType {
@@ -28,4 +31,4 @@ interface ChatContextType {
   getMessage: (id: string) => Promise<void>;
 }
 
-export type { AuthContextType, ChatContextType };
+export type { AuthContextType, ChatContextType, UpdateProfile };

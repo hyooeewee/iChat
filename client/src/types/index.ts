@@ -1,4 +1,8 @@
 import type { Message, User } from './common';
-import type { AuthContextType, ChatContextType } from './context';
+import type {
+  AuthContextType,
+  ChatContextType,
+  UpdateProfile,
+} from './context';
 
-export type { AuthContextType, ChatContextType, Message, User };
+export type { AuthContextType, ChatContextType, Message, UpdateProfile, User };
