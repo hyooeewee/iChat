@@ -58,9 +58,11 @@ app.use(errorHandler);
 
 // Server Setup
 const PORT = process.env.PORT || 5000;
-const startServer = () => {
+
+export const startServer = () => {
   server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
   });
 };
-export { startServer };
+
+export default server;
