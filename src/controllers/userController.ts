@@ -88,7 +88,7 @@ export const login = async (req: Request, res: Response) => {
 export const updateProfile = async (req: AuthRequest, res: Response) => {
   try {
     const { profilePic, bio, username } = req.body;
-    const userId = req.user._id;
+    const userId = req.user?._id;
     let updatedUser;
     if (profilePic) {
       const upload = await cloudinary.uploader.upload(profilePic);
