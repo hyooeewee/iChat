@@ -1,10 +1,10 @@
 import type { NextFunction, Response } from 'express';
 import { Types } from 'mongoose';
+import type { AuthRequest } from '../@types';
 import cloudinary from '../config/cloudinary';
 import Message, { type IMessage } from '../models/Message';
 import User from '../models/User';
 import { clientsMap, io } from '../server';
-import type { AuthRequest } from '../types';
 
 export const getUsers = async (
   req: AuthRequest,
@@ -16,18 +16,43 @@ export const getUsers = async (
     const filteredUsers = await User.find({ _id: { $ne: userId } }).select(
       '-password'
     );
-    const unseenMessages: { [keys: string]: number } = {};
-    const promises = filteredUsers.map(async user => {
-      const messages = await Message.find({
-        senderId: user._id,
-        receiverId: userId,
-        seen: false,
-      });
-      if (messages.length > 0) {
-        unseenMessages[user._id.toString()] = messages.length;
-      }
-    });
-    await Promise.all(promises);
+    const unseenMessagesResult = await Message.aggregate([
+      {
+        $match: {
+          receiverId: userId,
+          seen: false,
+        },
+      },
+      {
+        $group: {
+          _id: '$senderId',
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          keyValueArray: {
+            $push: {
+              k: { $toString: '$_id' },
+              v: '$count',
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          unseenMessages: { $arrayToObject: '$keyValueArray' },
+        },
+      },
+    ]);
+
+    const unseenMessages =
+      unseenMessagesResult.length > 0
+        ? unseenMessagesResult[0].unseenMessages
+        : {};
+
     res
       .status(200)
       .json({ success: true, users: filteredUsers, unseenMessages });
@@ -53,8 +78,8 @@ export const getMessagesById = async (
     });
     await Message.updateMany(
       {
-        senderId: userId,
-        receiverId: contactId,
+        senderId: contactId,
+        receiverId: userId,
       },
       { seen: true }
     );

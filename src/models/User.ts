@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
     toJSON: {
       // hide password when returning JSON
-      transform: function (doc, ret) {
+      transform: function (_doc, ret) {
         delete (ret as Partial<IUser>).password;
         return ret;
       },

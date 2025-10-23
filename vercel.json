@@ -7,9 +7,6 @@
             "config": {
                 "includeFiles": [
                     "dist/**"
-                ],
-                "excludeFiles": [
-                    "client/**"
                 ]
             }
         }

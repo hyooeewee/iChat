@@ -1,10 +1,14 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
+import type { AuthRequest } from '../@types';
 import cloudinary from '../config/cloudinary';
 import { comparePassword, generateToken, hashPassword } from '../lib/secret';
 import User from '../models/User';
-import type { AuthRequest } from '../types';
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   /**
    * Register a new user
    * @route POST /api/register
@@ -44,15 +48,15 @@ export const register = async (req: Request, res: Response) => {
       message: 'User created successfully',
     });
   } catch (error) {
-    console.error(error);
-    res.json({
-      success: false,
-      message: 'User could not be created',
-    });
+    return next(error);
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -77,15 +81,19 @@ export const login = async (req: Request, res: Response) => {
       message: 'User logged in successfully',
     });
   } catch (error) {
-    console.error(error);
-    res.json({
+    return next({
+      error,
       success: false,
       message: 'User could not be logged in',
     });
   }
 };
 
-export const updateProfile = async (req: AuthRequest, res: Response) => {
+export const updateProfile = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { profilePic, bio, username } = req.body;
     const userId = req.user?._id;
@@ -117,8 +125,9 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
       message: 'Profile updated successfully',
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
+    return next({
+      error,
+      status: 500,
       success: false,
       message: 'Profile could not be updated',
     });

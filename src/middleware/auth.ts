@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
+import { AuthRequest, tokenPayloadType } from '../@types';
 import { verifyToken } from '../lib/secret';
 import User from '../models/User';
-import { AuthRequest, tokenPayloadType } from '../types';
 
 export const protectRoute = async (
   req: AuthRequest,
@@ -27,13 +27,13 @@ export const protectRoute = async (
     req.user = user;
     next();
   } catch (error) {
-    next(error);
+    return next({ error });
   }
 };
 
 export const checkAuth = async (req: AuthRequest, res: Response) => {
   try {
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       user: req.user,
     });

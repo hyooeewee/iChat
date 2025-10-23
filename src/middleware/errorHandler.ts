@@ -2,9 +2,9 @@ import { NextFunction, Request, Response } from 'express';
 
 const errorHandler = (
   err: any,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   try {
     if (err instanceof Error) {
@@ -18,7 +18,7 @@ const errorHandler = (
       message: 'Internal Server Error',
     });
   } catch (error) {
-    console.log(error);
+    return console.log(error);
   }
 };
 
