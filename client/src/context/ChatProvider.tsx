@@ -31,7 +31,7 @@ const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       errorHandler(error);
     }
   };
-  const getMessages = async (id: string) => {
+  const getMessagesById = async (id: string) => {
     try {
       const { data } = await axios.get(`/api/messages/${id}`);
       if (data.success) {
@@ -41,7 +41,7 @@ const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       errorHandler(error);
     }
   };
-  const sendMessage = async (message: SendMessageType) => {
+  const sendMessageById = async (message: SendMessageType) => {
     try {
       const { data } = await axios.post(
         `/api/messages/send/${selectedUser?._id}`,
@@ -56,30 +56,37 @@ const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       errorHandler(error);
     }
   };
+  const seenMessagesById = async (id: string) => {
+    try {
+      const { data } = await axios.put(`/api/messages/seen/${id}`);
+      if (data.success) {
+        console.log(data);
+      }
+    } catch (error) {
+      errorHandler(error);
+    }
+  };
   const subscribeMessages = async () => {
-    console.log('socket:', socket);
-    console.log('subscribing');
-    socket?.on('test', (msg: string) => {
-      console.log('msg:', msg);
-    });
     if (!socket) return;
-    socket.on('newMessage', (message: Message) => {
-      console.log('new Msg:', message);
+    socket.on('newMessage', async (message: Message) => {
       if (selectedUser && selectedUser._id === message.senderId) {
         message.seen = true;
-        setMessages(messages => [...messages, message]);
-        axios.put(`/api/messages/seen/${message._id}`);
+        setMessages(prev => {
+          return [...prev, message];
+        });
+        await seenMessagesById(message._id as string);
       } else {
-        setUnseenMessages(prev => ({
-          ...prev,
-          [message.senderId]: (unseenMessages[message.senderId] || 0) + 1,
-        }));
+        setUnseenMessages(prev => {
+          return {
+            ...prev,
+            [message.senderId]: (prev[message.senderId] || 0) + 1,
+          };
+        });
       }
     });
   };
 
   const unsubscribeMessages = async () => {
-    console.log('unsubscribing');
     if (!socket) return;
     socket.off('newMessage');
   };
@@ -98,9 +105,9 @@ const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     setMessages,
     setSelectedUser,
     setUnseenMessages,
-    getMessages,
+    getMessagesById,
     getUsers,
-    sendMessage,
+    sendMessageById,
   };
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
 };

@@ -6,15 +6,20 @@ import ChatContext from '../context/ChatContext';
 import formatMsgTime from '../lib/utils';
 import type { AuthContextType, ChatContextType, Message } from '../types';
 const ChatContainer = () => {
-  const { selectedUser, setSelectedUser, messages, sendMessage, getMessages } =
-    useContext(ChatContext) as ChatContextType;
+  const {
+    selectedUser,
+    setSelectedUser,
+    messages,
+    sendMessageById,
+    getMessagesById,
+  } = useContext(ChatContext) as ChatContextType;
   const { authUser, onlineUsers } = useContext(AuthContext) as AuthContextType;
   const scrollEnd = useRef<HTMLDivElement>(null);
   const [input, setInput] = useState<string>('');
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim() === '') return;
-    await sendMessage({
+    await sendMessageById({
       content: input.trim(),
     });
     setInput('');
@@ -29,7 +34,7 @@ const ChatContainer = () => {
     reader.readAsDataURL(file);
     reader.onloadend = async () => {
       const base64Image = reader.result as string;
-      await sendMessage({
+      await sendMessageById({
         image: base64Image,
       });
       e.target.value = '';
@@ -43,7 +48,7 @@ const ChatContainer = () => {
   }, [messages]);
   useEffect(() => {
     if (selectedUser) {
-      getMessages(selectedUser._id);
+      getMessagesById(selectedUser._id);
     }
   }, [selectedUser]);
   return !selectedUser ? (

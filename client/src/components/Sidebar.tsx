@@ -75,9 +75,10 @@ const Sidebar = () => {
             key={index}
             onClick={() => {
               setSelectedUser(user);
-              setUnseenMessages(prev => {
-                return { ...prev, [user._id]: 0 };
-              });
+              setUnseenMessages(prev => ({
+                ...prev,
+                [user._id]: 0,
+              }));
             }}
           >
             <img

@@ -31,8 +31,8 @@ interface ChatContextType {
     React.SetStateAction<{ [keys: string]: number }>
   >;
   getUsers: () => Promise<void>;
-  sendMessage: (message: SendMessageType) => Promise<void>;
-  getMessages: (id: string) => Promise<void>;
+  sendMessageById: (message: SendMessageType) => Promise<void>;
+  getMessagesById: (id: string) => Promise<void>;
 }
 
 export type {

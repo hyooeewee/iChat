@@ -28,7 +28,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     newSocket.connect();
     setSocket(newSocket);
     newSocket.on('onlineUsers', (userIds: string[]) => {
-      console.log('[socket.io]', 'Received "onlineUsers" event');
       setOnlineUsers(userIds);
     });
   };
